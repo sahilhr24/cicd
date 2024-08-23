@@ -1,0 +1,27 @@
+name: Build and Deploy Docker Application
+
+on: [push]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t my-nginx-app:latest .
+
+    - name: Log in to VM and deploy Docker container
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" | ssh-add -
+        ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "
+          docker stop my-nginx-app-container || true &&
+          docker rm my-nginx-app-container || true &&
+          docker run -d --name my-nginx-app-container -p 80:80 my-nginx-app:latest
+        "
