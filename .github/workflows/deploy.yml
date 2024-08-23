@@ -24,8 +24,8 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" | ssh-add -
         ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "
-          docker pull myapp:latest &&
-          docker stop myapp-container || true &&
-          docker rm myapp-container || true &&
-          docker run -d --name myapp-container -p 80:80 myapp:latest
+          sudo docker pull myapp:latest &&
+          sudo docker stop myapp-container || true &&
+          sudo docker rm myapp-container || true &&
+          sudo docker run -d --name myapp-container -p 80:80 myapp:latest
         "
