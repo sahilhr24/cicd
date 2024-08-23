@@ -22,8 +22,7 @@ jobs:
 
     - name: Build Docker image
       run: sudo docker build -t my-nginx-app:latest .
-
-#    - name: Log in to VM and deploy Docker container
+      
     - name: Deploy Docker container
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
