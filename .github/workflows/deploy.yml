@@ -10,10 +10,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Start SSH agent
+      run: eval "$(ssh-agent -s)"
+
+    - name: Add SSH key
+      run: |
+        echo "$SSH_PRIVATE_KEY" > /tmp/private_key
+        chmod 600 /tmp/private_key
+        ssh-add /tmp/private_key
+        rm /tmp/private_key
+
     - name: Build Docker image
       run: sudo docker build -t my-nginx-app:latest .
 
-    - name: Log in to VM and deploy Docker container
+#    - name: Log in to VM and deploy Docker container
+    - name: Deploy Docker container
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         HOST: ${{ secrets.HOST }}
