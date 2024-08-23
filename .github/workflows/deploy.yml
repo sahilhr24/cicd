@@ -1,4 +1,4 @@
-name: Build and Deploy Docker Application
+name: Deploy Docker Application
 
 on: [push]
 
@@ -10,20 +10,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Start SSH agent
-      run: eval "$(ssh-agent -s)"
-
-    - name: Add SSH key
-      run: |
-        echo "$SSH_PRIVATE_KEY" > /tmp/private.pem
-        chmod 600 /tmp/private.pem
-        ssh-add /tmp/private.pem
-        rm /tmp/private.pem
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
     - name: Build Docker image
-      run: sudo docker build -t my-nginx-app:latest .
-      
-    - name: Deploy Docker container
+      run: sudo docker build -t myapp:latest .
+
+    - name: Log in to VM and deploy Docker container
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         HOST: ${{ secrets.HOST }}
@@ -31,7 +24,8 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" | ssh-add -
         ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "
-          docker stop my-nginx-app-container || true &&
-          docker rm my-nginx-app-container || true &&
-          docker run -d --name my-nginx-app-container -p 80:80 my-nginx-app:latest
+          docker pull myapp:latest &&
+          docker stop myapp-container || true &&
+          docker rm myapp-container || true &&
+          docker run -d --name myapp-container -p 80:80 myapp:latest
         "
