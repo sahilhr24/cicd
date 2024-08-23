@@ -1,4 +1,4 @@
-name: Deploy Docker Application
+name: Build and Deploy Docker Application
 
 on: [push]
 
@@ -10,11 +10,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
     - name: Build Docker image
-      run: sudo docker build -t myapp:latest .
+      run: sudo docker build -t my-nginx-app:latest .
 
     - name: Log in to VM and deploy Docker container
       env:
@@ -24,8 +21,7 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" | ssh-add -
         ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "
-          sudo docker pull myapp:latest &&
-          sudo docker stop myapp-container || true &&
-          sudo docker rm myapp-container || true &&
-          sudo docker run -d --name myapp-container -p 80:80 myapp:latest
+          sudo docker stop my-nginx-app-container || true &&
+          sudo docker rm my-nginx-app-container || true &&
+          sudo docker run -d --name my-nginx-app-container -p 80:80 my-nginx-app:latest
         "
